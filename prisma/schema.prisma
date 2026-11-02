@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id           String   @id @default(cuid())
+  fullName     String
+  nickname     String?
+  email        String   @unique
+  phone        String?
+  location     String?
+  profession   String?
+  headline     String?
+  description  String?
+  profileImage String?
+  cvFile       String?
+  githubUrl    String?
+  linkedinUrl  String?
+  instagramUrl String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Experience {
+  id          String    @id @default(cuid())
+  title       String
+  organization String
+  category    String?
+  location    String?
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  isCurrent   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Education {
+  id          String   @id @default(cuid())
+  institution String
+  degree      String
+  major       String?
+  startYear   Int
+  endYear     Int?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Skill {
+  id           String   @id @default(cuid())
+  name         String
+  category     String
+  proficiency  Int      @default(0)
+  icon         String?
+  description  String?
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Project {
+  id           String              @id @default(cuid())
+  title        String
+  slug         String              @unique
+  description  String?
+  content      String?
+  thumbnail    String?
+  demoUrl      String?
+  repositoryUrl String?
+  category     String?
+  status       String              @default("draft") // draft, published
+  featured     Boolean             @default(false)
+  startDate    DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  technologies ProjectTechnology[]
+}
+
+model Technology {
+  id        String              @id @default(cuid())
+  name      String              @unique
+  icon      String?
+  category  String?
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  projects  ProjectTechnology[]
+}
+
+model ProjectTechnology {
+  id           String     @id @default(cuid())
+  projectId    String
+  technologyId String
+  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  technology   Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, technologyId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  status    String   @default("unread") // unread, read, replied, archived
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AdminUser {
+  id          String    @id @default(cuid())
+  name        String
+  email       String    @unique
+  passwordHash String
+  role        String    @default("admin")
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model SiteSetting {
+  id          String   @id @default(cuid())
+  settingKey  String   @unique
+  settingValue String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
