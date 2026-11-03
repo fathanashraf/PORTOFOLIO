@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+type RouteContext = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+export async function PATCH(req: NextRequest, { params }: RouteContext) {
   try {
+    const { id } = await params;
     const body = await req.json();
     const message = await prisma.message.update({
-      where: { id: params.id },
+      where: { id },
       data: body,
     });
     return NextResponse.json(
@@ -23,13 +27,11 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest, { params }: RouteContext) {
   try {
+    const { id } = await params;
     await prisma.message.delete({
-      where: { id: params.id },
+      where: { id },
     });
     return NextResponse.json(
       { success: true, message: "Pesan berhasil dihapus" }
